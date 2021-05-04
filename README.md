@@ -1,10 +1,14 @@
 # kubecost_container
 
-A Docker container to provide a container that is ready to run kubecost krew
-plugin, and presents a simple menu with kubecost plugin options.
+A Docker container to provide a container that is ready to run the kubecost krew
+plugin, and presents a simple menu with some kubecost options.
 
-Warning this **will** install kubecost into your cluster - it is not localized
-to the docker container.
+:bangbang: | Warning: This *will* install kubecost into your cluster
+:---: | :---
+
+## All credit to the amazing Kubecost tool
+
+Please see much more here: <https://www.kubecost.com/>
 
 ## User Driven Menu
 
@@ -14,12 +18,6 @@ to the docker container.
 
 ```bash
 docker run -it --rm -v ~/.kube/:/root/.kube rwellum/kubecost_container:latest
-```
-
-## Once in the container try
-
-```bash
-get_kubecost_data
 ```
 
 ## For the package maintainer
