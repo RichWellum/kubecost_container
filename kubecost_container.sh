@@ -161,13 +161,14 @@ function get_projected_1m_deployment() {
 }
 
 function get_actual_1m_pod() {
-    # Projected monthly rate for each pod in duration the last 1 month
+    # Actual monthly rate for each pod in duration the last 1 month
     echo -e "Actual monthly costs per Pod" | boxes -d stone >/home/kubecost_container.kubecost
 
     kubectl cost pod \
         --window 1m \
         --historical \
-        --show-all-resources \
+        --show-cpu \
+        --show-memory \
         >>/home/kubecost_container.kubecost
 
     echo >>/home/kubecost_container.kubecost
