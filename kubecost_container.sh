@@ -160,22 +160,39 @@ function get_projected_1m_deployment() {
     echo -en ${NC}
 }
 
+function get_actual_1m_pod() {
+    # Projected monthly rate for each pod in duration the last 1 month
+    echo -e "Actual monthly costs per Pod" | boxes -d stone >/home/kubecost_container.kubecost
+
+    kubectl cost pod \
+        --window 1m \
+        --historical \
+        --show-all-resources \
+        >>/home/kubecost_container.kubecost
+
+    echo >>/home/kubecost_container.kubecost
+    echo -en ${GREEN}
+    less /home/kubecost_container.kubecost
+    echo -en ${NC}
+}
+
 function menu() {
     HEIGHT=15
     WIDTH=80
-    CHOICE_HEIGHT=6
+    CHOICE_HEIGHT=7
     BACKTITLE="Kubecost Container"
     TITLE="Kubecost Information"
     MENU="Choose one of the following options:"
 
     while true; do
         OPTIONS=(
-            1 "Projected monthly costs per namespace"
-            2 "Actual monthly costs per namespace"
-            3 "Projected monthly costs per deployment"
-            4 "All of the above"
-            5 "Break into bash and run your own 'kubectl cost' commands"
-            6 "Exit out of container")
+            1 "Projected monthly costs per Namespace"
+            2 "Actual monthly costs per Namespace"
+            3 "Projected monthly costs per Deployment"
+            4 "Actual monthly costs per Pod"
+            5 "All of the above"
+            6 "Break into bash and run your own 'kubectl cost' commands"
+            7 "Exit out of container")
 
         CHOICE=$(dialog --clear \
             --backtitle "$BACKTITLE" \
@@ -200,10 +217,14 @@ function menu() {
             get_projected_1m_deployment
             ;;
         4)
-            echo "You chose: All of the above"
-            get_projected_1m_namespace; get_actual_1m_namespace_historical; get_actual_1m_namespace_historical
+            echo "You chose: Actual monthly costs per pod"
+            get_actual_1m_pod
             ;;
         5)
+            echo "You chose: All of the above"
+            get_projected_1m_namespace; get_actual_1m_namespace_historical; get_actual_1m_namespace_historical; get_actual_1m_pod
+            ;;
+        6)
             echo "You chose: Break into bash and run your own commands"
             echo -en ${GREEN}
             kubectl cost -h
@@ -212,7 +233,7 @@ function menu() {
             source ~/.bashrc
             bash
             ;;
-        6)
+        7)
             exit 1
             ;;
         esac
