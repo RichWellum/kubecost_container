@@ -117,85 +117,43 @@ function enable_kubecost() {
     stop_spinner $?
 }
 
-function get_kubecost_data() {
-    # kubecost commands and outputs
-    #
-    # There are several supported subcommands: namespace, deployment, controller,
-    # label, and tui, which display cost information aggregated by the name of the
-    # subcommand (see Examples). Each subcommand has two primary modes, rate and
-    # non-rate. Rate (the default) displays the projected monthly cost based on the
-    # activity during the window. Non-rate (--historical) displays the total cost
-    # for the duration of the window.
-
-    # Historical=total cost for the duration of the window
-    # Non-historical = the projected monthly cost during window
-
-    echo "KubeCost Information" | boxes -d stone >/home/kubecost_container.kubecost
-    echo >>/home/kubecost_container.kubecost
-
+function get_projected_1m_namespace() {
     # Projected monthly costs per namespace
-    echo -e "Projected monthly costs per namespace" >>/home/kubecost_container.kubecost
-    echo -e "-------------------------------------\n" >>/home/kubecost_container.kubecost
+    echo -e "Projected monthly costs per Namespace" | boxes -d stone >/home/kubecost_container.kubecost
 
     kubectl cost namespace \
-        --show-all-resources >>/home/kubecost_container.kubecost
-    echo >>/home/kubecost_container.kubecost
+        --show-all-resources --window 1m >>/home/kubecost_container.kubecost
 
-    # Actual costs per namespace duration the last 5 days
-    echo -e "Actual costs per namespace duration the last 5 days" >>/home/kubecost_container.kubecost
-    echo -e "---------------------------------------------------\n" >>/home/kubecost_container.kubecost
+    echo >>/home/kubecost_container.kubecost
+    echo -en ${GREEN}
+    less /home/kubecost_container.kubecost
+    echo -en ${NC}
+}
+
+function get_actual_1m_namespace_historical() {
+    # Actual costs per namespace duration the last 1 month
+    echo -e "Actual monthly costs per namespace" | boxes -d stone >/home/kubecost_container.kubecost
+
     kubectl cost namespace \
         --historical \
-        --window 5d \
+        --window 1m \
         --show-all-resources >>/home/kubecost_container.kubecost
-    echo >>/home/kubecost_container.kubecost
 
-    # Projected monthly rate for each deployment in Viya4 duration the last 5 days
-    echo -e "Projected monthly rate for each deployment in the last 5 days" >>/home/kubecost_container.kubecost
-    echo -e "----------------------------------------------------------------------------\n" >>/home/kubecost_container.kubecost
+    echo >>/home/kubecost_container.kubecost
+    echo -en ${GREEN}
+    less /home/kubecost_container.kubecost
+    echo -en ${NC}
+}
+
+function get_projected_1m_deployment() {
+    # Projected monthly rate for each deployment in duration the last 1 month
+    echo -e "Projected monthly costs per deployment" | boxes -d stone >/home/kubecost_container.kubecost
+
     kubectl cost deployment \
-        --window 5d \
+        --window 1m \
         --show-all-resources \
         >>/home/kubecost_container.kubecost
-    echo >>/home/kubecost_container.kubecost
-    echo -en ${GREEN}
-    less /home/kubecost_container.kubecost
-    echo -en ${NC}
-}
-export -f get_kubecost_data
 
-function get_projected_monthly() {
-    # Projected monthly costs per namespace
-    echo -e "Projected monthly costs per namespace" | boxes -d stone >/home/kubecost_container.kubecost
-
-    kubectl cost namespace \
-        --show-all-resources >>/home/kubecost_container.kubecost
-    echo >>/home/kubecost_container.kubecost
-    echo -en ${GREEN}
-    less /home/kubecost_container.kubecost
-    echo -en ${NC}
-}
-
-function get_actual_5_days() {
-    # Actual costs per namespace duration the last 5 days
-    echo -e "Actual costs per namespace duration the last 5 days" | boxes -d stone >/home/kubecost_container.kubecost
-    kubectl cost namespace \
-        --historical \
-        --window 5d \
-        --show-all-resources >>/home/kubecost_container.kubecost
-    echo >>/home/kubecost_container.kubecost
-    echo -en ${GREEN}
-    less /home/kubecost_container.kubecost
-    echo -en ${NC}
-}
-
-function get_projected_5_days() {
-    # Projected monthly rate for each deployment in duration the last 5 days
-    echo -e "Projected monthly rate for each deployment in the last 5 days" | boxes -d stone >/home/kubecost_container.kubecost
-    kubectl cost deployment \
-        --window 5d \
-        --show-all-resources \
-        >>/home/kubecost_container.kubecost
     echo >>/home/kubecost_container.kubecost
     echo -en ${GREEN}
     less /home/kubecost_container.kubecost
@@ -213,8 +171,8 @@ function menu() {
     while true; do
         OPTIONS=(
             1 "Projected monthly costs per namespace"
-            2 "Actual costs per namespace duration the last 5 days"
-            3 "Projected monthly rate for each deployment in the last 5 days"
+            2 "Actual monthly costs per namespace"
+            3 "Projected monthly costs per deployment"
             4 "All of the above"
             5 "Break into bash and run your own 'kubectl cost' commands"
             6 "Exit out of container")
@@ -231,25 +189,25 @@ function menu() {
         case $CHOICE in
         1)
             echo "You chose: Projected monthly costs per namespace"
-            get_projected_monthly
+            get_projected_1m_namespace
             ;;
         2)
-            echo "You chose: Actual costs per namespace duration the last 5 days"
-            get_actual_5_days
+            echo "You chose: Actual monthly costs per namespace"
+            get_actual_1m_namespace_historical
             ;;
         3)
-            echo "You chose: Projected monthly rate for each deployment in the last 5 days"
-            get_projected_5_days
+            echo "You chose: Projected monthly costs per deployment"
+            get_projected_1m_deployment
             ;;
         4)
             echo "You chose: All of the above"
-            get_kubecost_data
+            get_projected_1m_namespace; get_actual_1m_namespace_historical; get_actual_1m_namespace_historical
             ;;
         5)
             echo "You chose: Break into bash and run your own commands"
             echo -en ${GREEN}
-            echo "Try running: 'get_kubecost_data'..."
-            echo "Run: 'kubectl cost -h' - for more options"
+            kubectl cost -h
+            echo
             echo -en ${NC}
             source ~/.bashrc
             bash
