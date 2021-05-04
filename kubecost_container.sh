@@ -130,7 +130,7 @@ function get_kubecost_data() {
     # Historical=total cost for the duration of the window
     # Non-historical = the projected monthly cost during window
 
-    echo "KubeCost Information" | boxes -d stone >>/home/kubecost_container.kubecost
+    echo "KubeCost Information" | boxes -d stone >/home/kubecost_container.kubecost
     echo >>/home/kubecost_container.kubecost
 
     # Projected monthly costs per namespace
