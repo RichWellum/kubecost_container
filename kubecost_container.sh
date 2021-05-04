@@ -243,7 +243,7 @@ function menu() {
             ;;
         4)
             echo "You chose: All of the above"
-            get_projected_monthly; get_actual_5_days; get_projected_5_days
+            get_kubecost_data
             ;;
         5)
             echo "You chose: Break into bash and run your own commands"
