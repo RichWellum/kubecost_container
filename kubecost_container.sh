@@ -3,19 +3,22 @@
 # Code to provide kubecost and kubecost plugin
 #
 
+export on_success="DONE"
+export on_fail="FAIL"
+export white="\e[1;37m"
+export GREEN="\e[1;32m"
+export RED="\e[1;31m"
+export CYAN='\033[0;36m'
+export NC="\e[0m"
+
+export PATH="${PATH}:${HOME}/.krew/bin"
+
 function _spinner() {
     # $1 start/stop
     #
     # on start: $2 display message
     # on stop : $2 process exit status
     #           $3 spinner function pid (supplied from stop_spinner)
-
-    local on_success="DONE"
-    local on_fail="FAIL"
-    local white="\e[1;37m"
-    local green="\e[1;32m"
-    local red="\e[1;31m"
-    local nc="\e[0m"
 
     case $1 in
     start)
@@ -47,9 +50,9 @@ function _spinner() {
         # inform the user uppon success or failure
         echo -en "\b["
         if [[ $2 -eq 0 ]]; then
-            echo -en "${green}${on_success}${nc}"
+            echo -en "${GREEN}${on_success}${nc}"
         else
-            echo -en "${red}${on_fail}${nc}"
+            echo -en "${RED}${on_fail}${nc}"
         fi
         echo -e "]"
         ;;
@@ -76,15 +79,6 @@ function stop_spinner() {
     # $1 : command exit status
     _spinner "stop" $1 $_sp_pid
     unset _sp_pid
-}
-
-function install_kubecost() {
-    # Install kubecost krew plugin
-    os=$(uname | tr '[:upper:]' '[:lower:]') &&
-        arch=$(uname -m | tr '[:upper:]' '[:lower:]' | sed -e s/x86_64/amd64/) &&
-        curl -s -L https://github.com/kubecost/kubectl-cost/releases/latest/download/kubectl-cost-$os-$arch.tar.gz | tar xz -C /tmp &&
-        chmod +x /tmp/kubectl-cost &&
-        mv /tmp/kubectl-cost /usr/local/bin/kubectl-cost
 }
 
 function enable_kubecost() {
@@ -147,44 +141,48 @@ function get_kubecost_data() {
         --show-all-resources \
         >>/home/kubecost_container.kubecost
     echo >>/home/kubecost_container.kubecost
-
+    echo -en ${GREEN}
     less /home/kubecost_container.kubecost
+    echo -en ${NC}
 }
 export -f get_kubecost_data
 
 function get_projected_monthly() {
     # Projected monthly costs per namespace
-    echo -e "Projected monthly costs per namespace" >/home/kubecost_container.kubecost
-    echo -e "-------------------------------------\n" >>/home/kubecost_container.kubecost
+    echo -e "Projected monthly costs per namespace" | boxes -d stone >/home/kubecost_container.kubecost
 
     kubectl cost namespace \
         --show-all-resources >>/home/kubecost_container.kubecost
     echo >>/home/kubecost_container.kubecost
+    echo -en ${GREEN}
     less /home/kubecost_container.kubecost
+    echo -en ${NC}
 }
 
 function get_actual_5_days() {
     # Actual costs per namespace duration the last 5 days
-    echo -e "Actual costs per namespace duration the last 5 days" >/home/kubecost_container.kubecost
-    echo -e "---------------------------------------------------\n" >>/home/kubecost_container.kubecost
+    echo -e "Actual costs per namespace duration the last 5 days" | boxes -d stone >/home/kubecost_container.kubecost
     kubectl cost namespace \
         --historical \
         --window 5d \
         --show-all-resources >>/home/kubecost_container.kubecost
     echo >>/home/kubecost_container.kubecost
+    echo -en ${GREEN}
     less /home/kubecost_container.kubecost
+    echo -en ${NC}
 }
 
 function get_projected_5_days() {
     # Projected monthly rate for each deployment in duration the last 5 days
-    echo -e "Projected monthly rate for each deployment in the last 5 days" >/home/kubecost_container.kubecost
-    echo -e "----------------------------------------------------------------------------\n" >>/home/kubecost_container.kubecost
+    echo -e "Projected monthly rate for each deployment in the last 5 days" | boxes -d stone >/home/kubecost_container.kubecost
     kubectl cost deployment \
         --window 5d \
         --show-all-resources \
         >>/home/kubecost_container.kubecost
     echo >>/home/kubecost_container.kubecost
+    echo -en ${GREEN}
     less /home/kubecost_container.kubecost
+    echo -en ${NC}
 }
 
 function menu() {
@@ -195,8 +193,7 @@ function menu() {
     TITLE="Kubecost Information"
     MENU="Choose one of the following options:"
 
-    while true
-    do
+    while true; do
         OPTIONS=(
             1 "Projected monthly costs per namespace"
             2 "Actual costs per namespace duration the last 5 days"
@@ -246,6 +243,5 @@ function menu() {
 }
 export -f menu
 
-install_kubecost
 enable_kubecost
 menu
