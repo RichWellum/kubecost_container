@@ -80,11 +80,11 @@ function stop_spinner() {
 
 function install_kubecost() {
     # Install kubecost krew plugin
-    os=$(uname | tr '[:upper:]' '[:lower:]') && \
-    arch=$(uname -m | tr '[:upper:]' '[:lower:]' | sed -e s/x86_64/amd64/) && \
-    curl -s -L https://github.com/kubecost/kubectl-cost/releases/latest/download/kubectl-cost-$os-$arch.tar.gz | tar xz -C /tmp && \
-    chmod +x /tmp/kubectl-cost && \
-    mv /tmp/kubectl-cost /usr/local/bin/kubectl-cost
+    os=$(uname | tr '[:upper:]' '[:lower:]') &&
+        arch=$(uname -m | tr '[:upper:]' '[:lower:]' | sed -e s/x86_64/amd64/) &&
+        curl -s -L https://github.com/kubecost/kubectl-cost/releases/latest/download/kubectl-cost-$os-$arch.tar.gz | tar xz -C /tmp &&
+        chmod +x /tmp/kubectl-cost &&
+        mv /tmp/kubectl-cost /usr/local/bin/kubectl-cost
 }
 
 function enable_kubecost() {
@@ -140,7 +140,7 @@ function get_kubecost_data() {
     echo >>/home/kubecost_container.kubecost
 
     # Projected monthly rate for each deployment in Viya4 duration the last 5 days
-    echo -e "Projected monthly rate for each deployment in Viya4 duration the last 5 days" >>/home/kubecost_container.kubecost
+    echo -e "Projected monthly rate for each deployment in the last 5 days" >>/home/kubecost_container.kubecost
     echo -e "----------------------------------------------------------------------------\n" >>/home/kubecost_container.kubecost
     kubectl cost deployment \
         --window 5d \
@@ -148,16 +148,104 @@ function get_kubecost_data() {
         >>/home/kubecost_container.kubecost
     echo >>/home/kubecost_container.kubecost
 
-    cat /home/kubecost_container.kubecost
+    less /home/kubecost_container.kubecost
 }
 export -f get_kubecost_data
 
+function get_projected_monthly() {
+    # Projected monthly costs per namespace
+    echo -e "Projected monthly costs per namespace" >/home/kubecost_container.kubecost
+    echo -e "-------------------------------------\n" >>/home/kubecost_container.kubecost
+
+    kubectl cost namespace \
+        --show-all-resources >>/home/kubecost_container.kubecost
+    echo >>/home/kubecost_container.kubecost
+    less /home/kubecost_container.kubecost
+}
+
+function get_actual_5_days() {
+    # Actual costs per namespace duration the last 5 days
+    echo -e "Actual costs per namespace duration the last 5 days" >/home/kubecost_container.kubecost
+    echo -e "---------------------------------------------------\n" >>/home/kubecost_container.kubecost
+    kubectl cost namespace \
+        --historical \
+        --window 5d \
+        --show-all-resources >>/home/kubecost_container.kubecost
+    echo >>/home/kubecost_container.kubecost
+    less /home/kubecost_container.kubecost
+}
+
+function get_projected_5_days() {
+    # Projected monthly rate for each deployment in duration the last 5 days
+    echo -e "Projected monthly rate for each deployment in the last 5 days" >/home/kubecost_container.kubecost
+    echo -e "----------------------------------------------------------------------------\n" >>/home/kubecost_container.kubecost
+    kubectl cost deployment \
+        --window 5d \
+        --show-all-resources \
+        >>/home/kubecost_container.kubecost
+    echo >>/home/kubecost_container.kubecost
+    less /home/kubecost_container.kubecost
+}
+
+function menu() {
+    HEIGHT=15
+    WIDTH=80
+    CHOICE_HEIGHT=6
+    BACKTITLE="Kubecost Container"
+    TITLE="Kubecost Information"
+    MENU="Choose one of the following options:"
+
+    while true
+    do
+        OPTIONS=(
+            1 "Projected monthly costs per namespace"
+            2 "Actual costs per namespace duration the last 5 days"
+            3 "Projected monthly rate for each deployment in the last 5 days"
+            4 "All of the above"
+            5 "Break into bash and run your own commands"
+            6 "Exit out of container")
+
+        CHOICE=$(dialog --clear \
+            --backtitle "$BACKTITLE" \
+            --title "$TITLE" \
+            --menu "$MENU" \
+            $HEIGHT $WIDTH $CHOICE_HEIGHT \
+            "${OPTIONS[@]}" \
+            2>&1 >/dev/tty)
+
+        clear
+        case $CHOICE in
+        1)
+            echo "You chose: Projected monthly costs per namespace"
+            get_projected_monthly
+            ;;
+        2)
+            echo "You chose: Actual costs per namespace duration the last 5 days"
+            get_actual_5_days
+            ;;
+        3)
+            echo "You chose: Projected monthly rate for each deployment in the last 5 days"
+            get_projected_5_days
+            ;;
+        4)
+            echo "You chose: All of the above"
+            get_kubecost_data
+            ;;
+        5)
+            echo "You chose: Break into bash and run your own commands"
+            echo "Try running 'get_kubecost_data'..."
+            echo "Run 'kubectl cost -h' - for more options"
+            source ~/.bashrc
+            bash
+            ;;
+        6)
+            exit 1
+            ;;
+        esac
+    done
+}
+export -f menu
+
 install_kubecost
 enable_kubecost
-
-echo "Try running 'get_kubecost_data'..."
-echo
-echo "Run 'kubectl cost -h' - for more options"
-
-source ~/.bashrc
-bash
+menu

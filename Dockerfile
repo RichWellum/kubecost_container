@@ -14,8 +14,10 @@ RUN chmod +x /app/kubecost_container.sh
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     git \
+    less \
     ca-certificates \
     boxes \
+    dialog \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
