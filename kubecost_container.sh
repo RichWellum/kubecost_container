@@ -132,7 +132,7 @@ function get_projected_1m_namespace() {
 
 function get_actual_1m_namespace_historical() {
     # Actual costs per namespace duration the last 1 month
-    echo -e "Actual monthly costs per namespace" | boxes -d stone >/home/kubecost_container.kubecost
+    echo -e "Actual monthly costs per Namespace" | boxes -d stone >/home/kubecost_container.kubecost
 
     kubectl cost namespace \
         --historical \
@@ -147,7 +147,7 @@ function get_actual_1m_namespace_historical() {
 
 function get_projected_1m_deployment() {
     # Projected monthly rate for each deployment in duration the last 1 month
-    echo -e "Projected monthly costs per deployment" | boxes -d stone >/home/kubecost_container.kubecost
+    echo -e "Projected monthly costs per Deployment" | boxes -d stone >/home/kubecost_container.kubecost
 
     kubectl cost deployment \
         --window 1m \
