@@ -81,23 +81,40 @@ function stop_spinner() {
     unset _sp_pid
 }
 
-function enable_kubecost() {
+function enable_kubecost_check() {
     # Enable kubecost on the target cluster
     KUBECOST=$(kubectl get namespaces | grep kubecost)
     if [ -z "$KUBECOST" ]; then
-        start_spinner 'Starting kubecost....'
-        kubectl create namespace kubecost &>/dev/null
-        helm repo add kubecost https://kubecost.github.io/cost-analyzer/ &>/dev/null
-        helm install kubecost kubecost/cost-analyzer --namespace kubecost --set kubecostToken="cmljaHdlbGx1bUBnbWFpbC5jb20=xm343yadf98" &>/dev/null
-        sleep 3
-        POD=$(kubectl get pods --all-namespaces | grep kubecost-cost-analyzer | awk '{print $2}')
-        while [ $(kubectl get pod $POD -n kubecost | grep 3/3 | wc -l | xargs) != "1" ]; do
-            sleep 5
-            echo "Waiting for kubecost-cost-analyzer to be ready."
+        echo -en ${RED}
+        echo "Kubecost not running on this cluster, do you wish to install?"
+        select yn in "Yes" "No"; do
+            case $yn in
+            Yes)
+                enable_kubecost
+                return
+                ;;
+            No) exit ;;
+            esac
         done
-        sleep 30 # Seems to take a while when first starting
-        stop_spinner $?
+        echo -en ${NC}
     fi
+}
+
+function enable_kubecost() {
+    # Enable kubecost on the target cluster
+    start_spinner 'Starting kubecost....'
+    kubectl create namespace kubecost &>/dev/null
+    helm repo add kubecost https://kubecost.github.io/cost-analyzer/ &>/dev/null
+    helm install kubecost kubecost/cost-analyzer --namespace kubecost --set kubecostToken="cmljaHdlbGx1bUBnbWFpbC5jb20=xm343yadf98" &>/dev/null
+    sleep 3
+    POD=$(kubectl get pods --all-namespaces | grep kubecost-cost-analyzer | awk '{print $2}')
+    while [ $(kubectl get pod $POD -n kubecost | grep 3/3 | wc -l | xargs) != "1" ]; do
+        sleep 15
+        echo -en ${RED}
+        echo "Waiting for kubecost-cost-analyzer to be ready."
+        echo -en ${NC}
+    done
+    stop_spinner $?
 }
 
 function get_kubecost_data() {
@@ -199,7 +216,7 @@ function menu() {
             2 "Actual costs per namespace duration the last 5 days"
             3 "Projected monthly rate for each deployment in the last 5 days"
             4 "All of the above"
-            5 "Break into bash and run your own commands"
+            5 "Break into bash and run your own 'kubectl cost' commands"
             6 "Exit out of container")
 
         CHOICE=$(dialog --clear \
@@ -226,12 +243,14 @@ function menu() {
             ;;
         4)
             echo "You chose: All of the above"
-            get_kubecost_data
+            get_projected_monthly; get_actual_5_days; get_projected_5_days
             ;;
         5)
             echo "You chose: Break into bash and run your own commands"
-            echo "Try running 'get_kubecost_data'..."
-            echo "Run 'kubectl cost -h' - for more options"
+            echo -en ${GREEN}
+            echo "Try running: 'get_kubecost_data'..."
+            echo "Run: 'kubectl cost -h' - for more options"
+            echo -en ${NC}
             source ~/.bashrc
             bash
             ;;
@@ -243,5 +262,5 @@ function menu() {
 }
 export -f menu
 
-enable_kubecost
+enable_kubecost_check
 menu

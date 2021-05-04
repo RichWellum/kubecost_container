@@ -3,7 +3,10 @@
 A Docker container to provide a container that is ready to run the kubecost krew
 plugin, and presents a simple menu with some kubecost options.
 
-:bangbang: | Warning: This *will* install kubecost into your cluster
+:bangbang: | Warning: This will install kubecost into your cluster
+:---: | :---
+
+:bangbang: |Do: 'kubectl delete namespace kubecost' to clean up
 :---: | :---
 
 ## All credit to the amazing Kubecost tool
