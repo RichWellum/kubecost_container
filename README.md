@@ -1,7 +1,7 @@
 # kubecost_container
 
-Provides a Docker container that provides the kubecost krew plugin, and
-presents a simple menu with some kubecost options. But also allows the user the
+A Docker container that provides the kubecost krew plugin, and presents a
+simple menu with some kubecost options. But also allows the user the
 environment in the container to execute their own kubectl cost commands.
 
 :bangbang: | Warning: This will deploy kubecost on your cluster if it is not already running.
