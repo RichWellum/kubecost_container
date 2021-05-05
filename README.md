@@ -1,17 +1,19 @@
 # kubecost_container
 
-A Docker container to provide a container that is ready to run the kubecost krew
-plugin, and presents a simple menu with some kubecost options.
+Provides a Docker container that provides the kubecost krew plugin, and
+presents a simple menu with some kubecost options. But also allows the user the
+environment in the container to execute their own kubectl cost commands.
 
-:bangbang: | Warning: This will install kubecost into your cluster
+:bangbang: | Warning: This will deploy kubecost on your cluster if it is not already running.
 :---: | :---
 
 :bangbang: |Do: 'kubectl delete namespace kubecost' to clean up
 :---: | :---
 
-## All credit to the amazing Kubecost tool
+## All credit to the amazing Kubecost tool and kubectl-cost krew plugin
 
-Please see much more here: <https://www.kubecost.com/>
+Please see much more here: <https://www.kubecost.com/> and here
+<https://github.com/kubecost/kubectl-cost>
 
 ## User Driven Menu
 
