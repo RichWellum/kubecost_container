@@ -7,7 +7,7 @@ environment in the container to execute their own kubectl-cost commands.
 :bangbang: | Warning: This will deploy kubecost on your cluster if it is not already running.
 :---: | :---
 
-:bangbang: |Do: 'kubectl delete namespace kubecost' to clean up
+:bangbang: |Do: 'helm uninstall kubecost -n kubecost' to clean up
 :---: | :---
 
 ## All credit to the amazing Kubecost tool and kubectl-cost krew plugin

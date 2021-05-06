@@ -115,6 +115,9 @@ function enable_kubecost() {
         echo -en ${NC}
     done
     stop_spinner $?
+    echo -en ${GREEN}
+    echo "Kubecost enabled. Use: 'helm uninstall kubecost -n kubecost' to uninstall."
+    echo -en ${NC}
 }
 
 function get_projected_1m_namespace() {
@@ -241,6 +244,9 @@ function menu() {
     done
 }
 export -f menu
+
+# Test code for GCP issues
+# kubectl version --v=10
 
 enable_kubecost_check
 menu
