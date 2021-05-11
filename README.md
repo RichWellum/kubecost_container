@@ -19,10 +19,17 @@ Please see much more here: <https://www.kubecost.com/> and here
 
 ![Alt text](./menu.png?raw=true "Menu")
 
-## Launch and run
+## Launch and run on Azure
 
 ```bash
 docker run -it --rm -v ~/.kube/:/root/.kube rwellum/kubecost_container:latest
+```
+
+## Launch and run on GKE
+
+```bash
+gcloud auth application-default login
+docker run -it --rm -v ~/.kube/:/root/.kube -v ~/.config/gcloud:/root/.config/gcloud rwellum/kubecost_container:latest
 ```
 
 ## For the package maintainer
