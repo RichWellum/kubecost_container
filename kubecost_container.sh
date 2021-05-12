@@ -184,7 +184,7 @@ function menu() {
     HEIGHT=15
     WIDTH=80
     CHOICE_HEIGHT=7
-    BACKTITLE="Kubecost Container"
+    BACKTITLE="For Kubecost UI run: 'kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090'. Then navigate to: 'http://127.0.0.1:9090'"
     TITLE="Kubecost Information"
     MENU="Choose one of the following options:"
 
