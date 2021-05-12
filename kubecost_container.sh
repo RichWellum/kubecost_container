@@ -125,7 +125,7 @@ function get_projected_1m_namespace() {
     echo -e "Projected monthly costs per Namespace" | boxes -d stone >/home/kubecost_container.kubecost
 
     kubectl cost namespace \
-        --show-all-resources --window 1m >>/home/kubecost_container.kubecost
+        --show-all-resources --window month >>/home/kubecost_container.kubecost
 
     echo >>/home/kubecost_container.kubecost
     echo -en ${GREEN}
@@ -139,7 +139,7 @@ function get_actual_1m_namespace_historical() {
 
     kubectl cost namespace \
         --historical \
-        --window 1m \
+        --window month \
         --show-all-resources >>/home/kubecost_container.kubecost
 
     echo >>/home/kubecost_container.kubecost
@@ -153,7 +153,7 @@ function get_projected_1m_deployment() {
     echo -e "Projected monthly costs per Deployment" | boxes -d stone >/home/kubecost_container.kubecost
 
     kubectl cost deployment \
-        --window 1m \
+        --window month \
         --show-all-resources \
         >>/home/kubecost_container.kubecost
 
@@ -168,7 +168,7 @@ function get_actual_1m_pod() {
     echo -e "Actual monthly costs per Pod" | boxes -d stone >/home/kubecost_container.kubecost
 
     kubectl cost pod \
-        --window 1m \
+        --window month \
         --historical \
         --show-cpu \
         --show-memory \
