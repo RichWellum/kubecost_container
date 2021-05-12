@@ -120,39 +120,12 @@ function enable_kubecost() {
     echo -en ${NC}
 }
 
-function get_projected_1m_namespace() {
-    # Projected monthly costs per namespace
-    echo -e "Projected monthly costs per Namespace" | boxes -d stone >/home/kubecost_container.kubecost
-
-    kubectl cost namespace \
-        --show-all-resources --window month >>/home/kubecost_container.kubecost
-
-    echo >>/home/kubecost_container.kubecost
-    echo -en ${GREEN}
-    less /home/kubecost_container.kubecost
-    echo -en ${NC}
-}
-
-function get_actual_1m_namespace_historical() {
+function get_actual_month_namespace_historical() {
     # Actual costs per namespace duration the last 1 month
     echo -e "Actual monthly costs per Namespace" | boxes -d stone >/home/kubecost_container.kubecost
 
     kubectl cost namespace \
         --historical \
-        --window month \
-        --show-all-resources >>/home/kubecost_container.kubecost
-
-    echo >>/home/kubecost_container.kubecost
-    echo -en ${GREEN}
-    less /home/kubecost_container.kubecost
-    echo -en ${NC}
-}
-
-function get_projected_1m_deployment() {
-    # Projected monthly rate for each deployment in duration the last 1 month
-    echo -e "Projected monthly costs per Deployment" | boxes -d stone >/home/kubecost_container.kubecost
-
-    kubectl cost deployment \
         --window month \
         --show-all-resources \
         >>/home/kubecost_container.kubecost
@@ -163,15 +136,45 @@ function get_projected_1m_deployment() {
     echo -en ${NC}
 }
 
-function get_actual_1m_pod() {
+function get_actual_month_deployment() {
+    # Actual monthly rate for each deployment in duration the last 1 month
+    echo -e "Projected monthly costs per Deployment using a one month window of data" | boxes -d stone >/home/kubecost_container.kubecost
+
+    kubectl cost deployment \
+        --historical \
+        --window month \
+        --show-all-resources \
+        >>/home/kubecost_container.kubecost
+
+    echo >>/home/kubecost_container.kubecost
+    echo -en ${GREEN}
+    less /home/kubecost_container.kubecost
+    echo -en ${NC}
+}
+
+function get_actual_month_pod() {
     # Actual monthly rate for each pod in duration the last 1 month
     echo -e "Actual monthly costs per Pod" | boxes -d stone >/home/kubecost_container.kubecost
 
     kubectl cost pod \
-        --window month \
         --historical \
-        --show-cpu \
-        --show-memory \
+        --window month \
+        --show-all-resources \
+        >>/home/kubecost_container.kubecost
+
+    echo >>/home/kubecost_container.kubecost
+    echo -en ${GREEN}
+    less /home/kubecost_container.kubecost
+    echo -en ${NC}
+}
+
+function get_projected_month_7d_window_namespace() {
+    # Projected monthly costs per namespace using last 7d window
+    echo -e "Projected monthly costs per Namespace using 7 days window of data" | boxes -d stone >/home/kubecost_container.kubecost
+
+    kubectl cost namespace \
+        --show-all-resources \
+        --window 7d \
         >>/home/kubecost_container.kubecost
 
     echo >>/home/kubecost_container.kubecost
@@ -190,10 +193,10 @@ function menu() {
 
     while true; do
         OPTIONS=(
-            1 "Projected monthly costs per Namespace"
-            2 "Actual monthly costs per Namespace"
-            3 "Projected monthly costs per Deployment"
-            4 "Actual monthly costs per Pod"
+            1 "Actual monthly costs per Namespace"
+            2 "Actual monthly costs per Deployment"
+            3 "Actual monthly costs per Pod"
+            4 "Projected monthly costs per Namespace based on 7 days of data"
             5 "All of the above"
             6 "Break into bash and run your own 'kubectl cost' commands"
             7 "Exit out of container")
@@ -209,24 +212,24 @@ function menu() {
         clear
         case $CHOICE in
         1)
-            echo "You chose: Projected monthly costs per namespace"
-            get_projected_1m_namespace
+            echo "You chose: Actual monthly costs per namespace"
+            get_actual_month_namespace_historical
             ;;
         2)
-            echo "You chose: Actual monthly costs per namespace"
-            get_actual_1m_namespace_historical
+            echo "You chose: Actual monthly costs per deployment"
+            get_actual_month_deployment
             ;;
         3)
-            echo "You chose: Projected monthly costs per deployment"
-            get_projected_1m_deployment
+            echo "You chose: Actual monthly costs per pod"
+            get_actual_month_pod
             ;;
         4)
-            echo "You chose: Actual monthly costs per pod"
-            get_actual_1m_pod
+            echo "You chose: Projected monthly costs per namespace based on 7 days of data"
+            get_projected_month_7d_window_namespace
             ;;
         5)
             echo "You chose: All of the above"
-            get_projected_1m_namespace; get_actual_1m_namespace_historical; get_actual_1m_namespace_historical; get_actual_1m_pod
+            get_projected_month_namespace; get_actual_month_namespace_historical; get_actual_month_namespace_historical; get_actual_month_pod
             ;;
         6)
             echo "You chose: Break into bash and run your own commands"
