@@ -138,7 +138,7 @@ function get_actual_month_namespace_historical() {
 
 function get_actual_month_deployment() {
     # Actual monthly rate for each deployment in duration the last 1 month
-    echo -e "Projected monthly costs per Deployment using a one month window of data" | boxes -d stone >/home/kubecost_container.kubecost
+    echo -e "Actual monthly costs per Deployment" | boxes -d stone >/home/kubecost_container.kubecost
 
     kubectl cost deployment \
         --historical \
@@ -229,7 +229,10 @@ function menu() {
             ;;
         5)
             echo "You chose: All of the above"
-            get_projected_month_namespace; get_actual_month_namespace_historical; get_actual_month_namespace_historical; get_actual_month_pod
+            get_projected_month_namespace
+            get_actual_month_namespace_historical
+            get_actual_month_namespace_historical
+            get_actual_month_pod
             ;;
         6)
             echo "You chose: Break into bash and run your own commands"
