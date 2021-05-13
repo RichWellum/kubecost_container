@@ -170,7 +170,7 @@ function get_actual_month_pod() {
 
 function get_projected_month_7d_window_namespace() {
     # Projected monthly costs per namespace using last 7d window
-    echo -e "Projected monthly costs per Namespace using 7 days window of data" | boxes -d stone >/home/kubecost_container.kubecost
+    echo -e "Projected monthly costs per Namespace" | boxes -d stone >/home/kubecost_container.kubecost
 
     kubectl cost namespace \
         --show-all-resources \
@@ -183,10 +183,26 @@ function get_projected_month_7d_window_namespace() {
     echo -en ${NC}
 }
 
+function get_actual_month_controller() {
+    # Actual monthly rate for each controller in duration the last 1 month
+    echo -e "Actual monthly costs per Controller" | boxes -d stone >/home/kubecost_container.kubecost
+
+    kubectl cost controller \
+        --historical \
+        --window month \
+        --show-all-resources \
+        >>/home/kubecost_container.kubecost
+
+    echo >>/home/kubecost_container.kubecost
+    echo -en ${GREEN}
+    less /home/kubecost_container.kubecost
+    echo -en ${NC}
+}
+
 function menu() {
     HEIGHT=15
-    WIDTH=80
-    CHOICE_HEIGHT=7
+    WIDTH=65
+    CHOICE_HEIGHT=8
     BACKTITLE="For Kubecost UI run: 'kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090'. Then navigate to: 'http://127.0.0.1:9090'"
     TITLE="Kubecost Information"
     MENU="Choose one of the following options:"
@@ -196,10 +212,11 @@ function menu() {
             1 "Actual monthly costs per Namespace"
             2 "Actual monthly costs per Deployment"
             3 "Actual monthly costs per Pod"
-            4 "Projected monthly costs per Namespace based on 7 days of data"
-            5 "All of the above"
-            6 "Break into bash and run your own 'kubectl cost' commands"
-            7 "Exit out of container")
+            4 "Actual monthly costs per Controller"
+            5 "Projected monthly costs per Namespace"
+            6 "All of the above"
+            7 "Break into bash and run your own 'kubectl cost' commands"
+            8 "Exit out of container")
 
         CHOICE=$(dialog --clear \
             --backtitle "$BACKTITLE" \
@@ -224,17 +241,22 @@ function menu() {
             get_actual_month_pod
             ;;
         4)
-            echo "You chose: Projected monthly costs per namespace based on 7 days of data"
-            get_projected_month_7d_window_namespace
+            echo "You chose: Actual monthly costs per controller"
+            get_actual_month_controller
             ;;
         5)
+            echo "You chose: Projected monthly costs per namespace"
+            get_projected_month_7d_window_namespace
+            ;;
+        6)
             echo "You chose: All of the above"
             get_actual_month_namespace
             get_actual_month_deployment
             get_actual_month_pod
+            get_actual_month_controller
             get_projected_month_7d_window_namespace
             ;;
-        6)
+        7)
             echo "You chose: Break into bash and run your own commands"
             echo -en ${GREEN}
             kubectl cost -h
@@ -243,7 +265,7 @@ function menu() {
             source ~/.bashrc
             bash
             ;;
-        7)
+        8)
             exit 1
             ;;
         esac
