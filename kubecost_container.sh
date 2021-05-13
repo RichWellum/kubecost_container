@@ -120,7 +120,7 @@ function enable_kubecost() {
     echo -en ${NC}
 }
 
-function get_actual_month_namespace_historical() {
+function get_actual_month_namespace() {
     # Actual costs per namespace duration the last 1 month
     echo -e "Actual monthly costs per Namespace" | boxes -d stone >/home/kubecost_container.kubecost
 
@@ -213,7 +213,7 @@ function menu() {
         case $CHOICE in
         1)
             echo "You chose: Actual monthly costs per namespace"
-            get_actual_month_namespace_historical
+            get_actual_month_namespace
             ;;
         2)
             echo "You chose: Actual monthly costs per deployment"
@@ -229,10 +229,10 @@ function menu() {
             ;;
         5)
             echo "You chose: All of the above"
-            get_projected_month_namespace
-            get_actual_month_namespace_historical
-            get_actual_month_namespace_historical
+            get_actual_month_namespace
+            get_actual_month_deployment
             get_actual_month_pod
+            get_projected_month_7d_window_namespace
             ;;
         6)
             echo "You chose: Break into bash and run your own commands"

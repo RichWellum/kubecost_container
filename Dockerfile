@@ -31,6 +31,14 @@ RUN curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/downloa
     KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64" && \
     "$KREW" install --manifest=krew.yaml --archive=krew.tar.gz && \
     "$KREW" install cost && \
+    "$KREW" install view-utilization && \
+    "$KREW" install view-allocations && \
+    "$KREW" install resource-capacity && \
+    "$KREW" install sick-pods && \
+    "$KREW" install resource-snapshot && \
+    "$KREW" install df-pv && \
+    "$KREW" install node-shell && \
+    "$KREW" install debug-shell && \
     "$KREW" update
 
 # Install helm
@@ -39,7 +47,7 @@ RUN chmod 700 get_helm.sh
 RUN ./get_helm.sh
 
 # Prettify the prompt
-RUN echo 'export PS1="[\u@docker_kubecost] \W # "' >> ~/.bashrc
+RUN echo 'export PS1="[\u@kubecost_container] \W # "' >> ~/.bashrc
 
 # Run kubecost, set up some utility functions
 CMD /app/kubecost_container.sh "${@}"
