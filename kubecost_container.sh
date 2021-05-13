@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# Code to provide kubecost and kubecost plugin
+# Code to provide kubecost and kubecost plugin in a nice UI with some cool
+# options and the ability to break in and run kubectl krew plugins as needed.
 #
 
 export on_success="DONE"
@@ -12,6 +13,10 @@ export CYAN='\033[0;36m'
 export NC="\e[0m"
 
 export PATH="${PATH}:${HOME}/.krew/bin"
+export DEBUG=false
+
+# Update from image build time
+kubectl krew update &>/dev/null
 
 function _spinner() {
     # $1 start/stop

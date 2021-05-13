@@ -5,9 +5,6 @@ ENV VERBOSE "false"
 
 ENV TERM xterm-256color
 
-# Debugging true or false
-ENV DEBUG "false"
-
 ADD kubecost_container.sh /app/
 RUN chmod +x /app/kubecost_container.sh
 
@@ -50,4 +47,4 @@ RUN ./get_helm.sh
 RUN echo 'export PS1="[\u@kubecost_container] \W # "' >> ~/.bashrc
 
 # Run kubecost, set up some utility functions
-CMD /app/kubecost_container.sh "${@}"
+CMD /app/kubecost_container.sh "${VERBOSE}"
