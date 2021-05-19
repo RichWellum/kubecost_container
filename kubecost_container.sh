@@ -13,10 +13,12 @@ export CYAN='\033[0;36m'
 export NC="\e[0m"
 
 export PATH="${PATH}:${HOME}/.krew/bin"
-export DEBUG=false
 
 # Update from image build time
 kubectl krew update &>/dev/null
+
+# Remove goland debugs
+unset DEBUG
 
 function _spinner() {
     # $1 start/stop
