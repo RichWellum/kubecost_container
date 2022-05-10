@@ -299,7 +299,7 @@ function get_actual_month_controller() {
 function menu() {
     HEIGHT=20
     WIDTH=70
-    CHOICE_HEIGHT=12
+    CHOICE_HEIGHT=13
     BACKTITLE="For Kubecost UI run: 'kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090'. Then navigate to: 'http://127.0.0.1:9090'"
     TITLE="Utils and Cost Information"
     MENU="Choose one of the following options:"
@@ -316,7 +316,8 @@ function menu() {
             8 "Stop/Pause a Viya Instance"
             9 "Start/Unpause a Viya Instance"
             10 "Monitor a Cluster (Ctrl-c to quit)"
-            11 "EXIT")
+            11 "Monitor a Cluster - not running (Ctrl-c to quit)"
+            12 "EXIT")
 
         CHOICE=$(dialog --clear \
             --backtitle "$BACKTITLE" \
@@ -384,6 +385,12 @@ function menu() {
             echo -en ${NC}
             ;;
         11)
+            echo "You chose: Monitor a Cluster - not running (Ctrl-c to quit)..."
+            echo -en ${GREEN}
+            monitor_cluster_not_running
+            echo -en ${NC}
+            ;;
+        12)
             exit 1
             ;;
         esac
