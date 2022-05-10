@@ -101,13 +101,16 @@ function stop_viya() {
     ((SELECTION--))
 
     echo
-    printf "Select a Viya Namespace from the above list to stop"
+    printf "Select a Viya Namespace from the above list to stop: "
 
     read -r opt
     if [[ $(seq 1 $SELECTION) =~ $opt ]]; then
         NAMESPACE=$(sed -n "${opt}p" <<<"$NS")
     fi
+    echo
+    echo "Stopping Viya Namespace $NAMESPACE"
     kubectl create job sas-stop-all-`date +%s` --from cronjobs/sas-stop-all -n $NAMESPACE &>/dev/null
+    monitor_cluster
 }
 
 function start_viya() {
@@ -123,13 +126,16 @@ function start_viya() {
     ((SELECTION--))
 
     echo
-    printf "Select a Viya Namespace from the above list to start"
+    printf "Select a Viya Namespace from the above list to start: "
 
     read -r opt
     if [[ $(seq 1 $SELECTION) =~ $opt ]]; then
         NAMESPACE=$(sed -n "${opt}p" <<<"$NS")
     fi
+    echo
+    echo "Starting Viya Namespace $NAMESPACE"
     kubectl create job sas-start-all-`date +%s` --from cronjobs/sas-start-all -n $NAMESPACE &>/dev/null
+    monitor_cluster
 }
 
 function monitor_cluster() {
@@ -286,7 +292,7 @@ function get_actual_month_controller() {
 }
 
 function menu() {
-    HEIGHT=15
+    HEIGHT=20
     WIDTH=65
     CHOICE_HEIGHT=8
     BACKTITLE="For Kubecost UI run: 'kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090'. Then navigate to: 'http://127.0.0.1:9090'"

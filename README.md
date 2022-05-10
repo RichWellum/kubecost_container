@@ -4,11 +4,11 @@ A Docker container that provides the kubectl-cost krew plugin, and presents a
 simple menu with some kubecost options. But also allows the user the
 environment in the container to execute their own kubectl-cost commands.
 
-:bangbang: | Warning: This will deploy kubecost on your cluster if it is not already running.
-:---: | :---
+| :bangbang: | Warning: This will deploy kubecost on your cluster if it is not already running. |
+| :--------: | :------------------------------------------------------------------------------- |
 
-:bangbang: |Do: 'helm uninstall kubecost -n kubecost' to clean up
-:---: | :---
+| :bangbang: | Do: 'helm uninstall kubecost -n kubecost' to clean up |
+| :--------: | :---------------------------------------------------- |
 
 ## All credit to the amazing Kubecost tool and kubectl-cost krew plugin
 
@@ -35,10 +35,18 @@ docker run -it --rm -v ~/.kube/:/root/.kube -v ~/.config/gcloud:/root/.config/gc
 ## For the package maintainer
 
 ```bash
-sudo docker system prune -f
-sudo docker rmi --force rwellum/kubecost_container:latest
-sudo docker build -t rwellum/kubecost_container:latest . --no-cache
-sudo docker push rwellum/kubecost_container:latest
+sudo bash -c "docker system prune -f \
+    && docker rmi --force rwellum/kubecost_container:latest \
+    && docker build -t rwellum/kubecost_container:latest . --no-cache && \
+    docker push rwellum/kubecost_container:latest"
+```
+
+## End user to get the latest package
+
+Warning removes everything...
+
+```bash
+    sudo docker system prune -a
 ```
 
 ## Todo
