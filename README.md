@@ -1,7 +1,8 @@
-# kubecost_container
+# viya_utils
 
-A Docker container that provides the kubectl-cost krew plugin, and presents a
-simple menu with some kubecost options. But also allows the user the
+A Docker container that provides some useful tools to the SAS Viya user such as
+cost and pause/unpause operations. It uses the kubectl-cost krew plugin, and
+presents a simple menu with some kubecost options. But also allows the user the
 environment in the container to execute their own kubectl-cost commands.
 
 | :bangbang: | Warning: This will deploy kubecost on your cluster if it is not already running. |
@@ -22,23 +23,23 @@ Please see much more here: <https://www.kubecost.com/> and here
 ## Launch and run on Azure
 
 ```bash
-docker run -it --rm -v ~/.kube/:/root/.kube rwellum/kubecost_container:latest
+sudo docker run -it --rm -v ~/.kube/:/root/.kube rwellum/viya_utils:latest
 ```
 
 ## Launch and run on GKE
 
 ```bash
 gcloud auth application-default login
-docker run -it --rm -v ~/.kube/:/root/.kube -v ~/.config/gcloud:/root/.config/gcloud rwellum/kubecost_container:latest
+docker run -it --rm -v ~/.kube/:/root/.kube -v ~/.config/gcloud:/root/.config/gcloud rwellum/viya_utils:latest
 ```
 
 ## For the package maintainer
 
 ```bash
 sudo bash -c "docker system prune -f \
-    && docker rmi --force rwellum/kubecost_container:latest \
-    && docker build -t rwellum/kubecost_container:latest . --no-cache && \
-    docker push rwellum/kubecost_container:latest"
+    && docker rmi --force rwellum/viya_utils:latest \
+    && docker build -t rwellum/viya_utils:latest . --no-cache && \
+    docker push rwellum/viya_utils:latest"
 ```
 
 ## End user to get the latest package

@@ -108,9 +108,9 @@ function stop_viya() {
         NAMESPACE=$(sed -n "${opt}p" <<<"$NS")
     fi
     echo
-    echo "Stopping Viya Namespace $NAMESPACE"
-    kubectl create job sas-stop-all-`date +%s` --from cronjobs/sas-stop-all -n $NAMESPACE &>/dev/null
-    monitor_cluster
+    echo "Stopping Viya Namespace '$NAMESPACE'"
+    kubectl create job sas-stop-all-$(date +%s) --from cronjobs/sas-stop-all -n $NAMESPACE &>/dev/null
+    monitor_cluster_not_running
 }
 
 function start_viya() {
@@ -133,14 +133,19 @@ function start_viya() {
         NAMESPACE=$(sed -n "${opt}p" <<<"$NS")
     fi
     echo
-    echo "Starting Viya Namespace $NAMESPACE"
-    kubectl create job sas-start-all-`date +%s` --from cronjobs/sas-start-all -n $NAMESPACE &>/dev/null
-    monitor_cluster
+    echo "Starting Viya Namespace '$NAMESPACE'"
+    kubectl create job sas-start-all-$(date +%s) --from cronjobs/sas-start-all -n $NAMESPACE &>/dev/null
+    monitor_cluster_not_running
 }
 
 function monitor_cluster() {
     # Light weight look at cluster status
     watch -d kubectl get po -A
+}
+
+function monitor_cluster_not_running() {
+    # Light weight look at cluster status not running
+    watch -d 'kubectl get pods --all-namespaces --sort-by=.spec.nodeName | grep -Ev "(Running|Completed)"'
 }
 
 function select_context() {
@@ -214,98 +219,98 @@ function enable_kubecost() {
 
 function get_actual_month_namespace() {
     # Actual costs per namespace duration the last 1 month
-    echo -e "Actual monthly costs per Namespace" | boxes -d stone >/home/kubecost_container.kubecost
+    echo -e "Actual monthly costs per Namespace" | boxes -d stone >/home/viya_utils.kubecost
 
     kubectl cost namespace \
         --historical \
         --window month \
         --show-all-resources \
-        >>/home/kubecost_container.kubecost
+        >>/home/viya_utils.kubecost
 
-    echo >>/home/kubecost_container.kubecost
+    echo >>/home/viya_utils.kubecost
     echo -en ${GREEN}
-    less /home/kubecost_container.kubecost
+    less /home/viya_utils.kubecost
     echo -en ${NC}
 }
 
 function get_actual_month_deployment() {
     # Actual monthly rate for each deployment in duration the last 1 month
-    echo -e "Actual monthly costs per Deployment" | boxes -d stone >/home/kubecost_container.kubecost
+    echo -e "Actual monthly costs per Deployment" | boxes -d stone >/home/viya_utils.kubecost
 
     kubectl cost deployment \
         --historical \
         --window month \
         --show-all-resources \
-        >>/home/kubecost_container.kubecost
+        >>/home/viya_utils.kubecost
 
-    echo >>/home/kubecost_container.kubecost
+    echo >>/home/viya_utils.kubecost
     echo -en ${GREEN}
-    less /home/kubecost_container.kubecost
+    less /home/viya_utils.kubecost
     echo -en ${NC}
 }
 
 function get_actual_month_pod() {
     # Actual monthly rate for each pod in duration the last 1 month
-    echo -e "Actual monthly costs per Pod" | boxes -d stone >/home/kubecost_container.kubecost
+    echo -e "Actual monthly costs per Pod" | boxes -d stone >/home/viya_utils.kubecost
 
     kubectl cost pod \
         --historical \
         --window month \
         --show-all-resources \
-        >>/home/kubecost_container.kubecost
+        >>/home/viya_utils.kubecost
 
-    echo >>/home/kubecost_container.kubecost
+    echo >>/home/viya_utils.kubecost
     echo -en ${GREEN}
-    less /home/kubecost_container.kubecost
+    less /home/viya_utils.kubecost
     echo -en ${NC}
 }
 
 function get_projected_month_7d_window_namespace() {
     # Projected monthly costs per namespace using last 7d window
-    echo -e "Projected monthly costs per Namespace" | boxes -d stone >/home/kubecost_container.kubecost
+    echo -e "Projected monthly costs per Namespace" | boxes -d stone >/home/viya_utils.kubecost
 
     kubectl cost namespace \
         --show-all-resources \
         --window 7d \
-        >>/home/kubecost_container.kubecost
+        >>/home/viya_utils.kubecost
 
-    echo >>/home/kubecost_container.kubecost
+    echo >>/home/viya_utils.kubecost
     echo -en ${GREEN}
-    less /home/kubecost_container.kubecost
+    less /home/viya_utils.kubecost
     echo -en ${NC}
 }
 
 function get_actual_month_controller() {
     # Actual monthly rate for each controller in duration the last 1 month
-    echo -e "Actual monthly costs per Controller" | boxes -d stone >/home/kubecost_container.kubecost
+    echo -e "Actual monthly costs per Controller" | boxes -d stone >/home/viya_utils.kubecost
 
     kubectl cost controller \
         --historical \
         --window month \
         --show-all-resources \
-        >>/home/kubecost_container.kubecost
+        >>/home/viya_utils.kubecost
 
-    echo >>/home/kubecost_container.kubecost
+    echo >>/home/viya_utils.kubecost
     echo -en ${GREEN}
-    less /home/kubecost_container.kubecost
+    less /home/viya_utils.kubecost
     echo -en ${NC}
 }
 
 function menu() {
     HEIGHT=20
-    WIDTH=65
+    WIDTH=70
     CHOICE_HEIGHT=12
     BACKTITLE="For Kubecost UI run: 'kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090'. Then navigate to: 'http://127.0.0.1:9090'"
-    TITLE="Kubecost Information"
+    TITLE="Utils and Cost Information"
     MENU="Choose one of the following options:"
 
     while true; do
         OPTIONS=(
-            1 "Actual monthly costs per Namespace"
-            2 "Actual monthly costs per Deployment"
-            3 "Actual monthly costs per Pod"
-            4 "Actual monthly costs per Controller"
-            5 "Projected monthly costs per Namespace"
+            1 "Actual costs per Namespace (this month)"
+            2 "Actual costs per Deployment (this month)"
+            3 "Actual costs per Pod (this month)"
+            4 "Actual costs per Controller (this month)"
+            5 "Projected monthly costs per Namespace (7d window)"
             6 "All of the above"
             7 "Break into bash and run your own 'kubectl cost' commands"
             8 "Stop/Pause a Viya Instance"
@@ -324,27 +329,27 @@ function menu() {
         clear
         case $CHOICE in
         1)
-            echo "You chose: Actual monthly costs per namespace"
+            echo "You chose: Actual monthly costs per namespace..."
             get_actual_month_namespace
             ;;
         2)
-            echo "You chose: Actual monthly costs per deployment"
+            echo "You chose: Actual monthly costs per deployment..."
             get_actual_month_deployment
             ;;
         3)
-            echo "You chose: Actual monthly costs per pod"
+            echo "You chose: Actual monthly costs per pod..."
             get_actual_month_pod
             ;;
         4)
-            echo "You chose: Actual monthly costs per controller"
+            echo "You chose: Actual monthly costs per controller..."
             get_actual_month_controller
             ;;
         5)
-            echo "You chose: Projected monthly costs per namespace"
+            echo "You chose: Projected monthly costs per namespace..."
             get_projected_month_7d_window_namespace
             ;;
         6)
-            echo "You chose: All of the above"
+            echo "You chose: All of the above..."
             get_actual_month_namespace
             get_actual_month_deployment
             get_actual_month_pod
@@ -352,7 +357,7 @@ function menu() {
             get_projected_month_7d_window_namespace
             ;;
         7)
-            echo "You chose: Break into bash and run your own commands"
+            echo "You chose: Break into bash and run your own commands..."
             echo -en ${GREEN}
             kubectl cost -h
             echo
@@ -361,19 +366,19 @@ function menu() {
             bash
             ;;
         8)
-            echo "You chose: Stop/Pause a Viya Instance"
+            echo "You chose: Stop/Pause a Viya Instance..."
             echo -en ${GREEN}
             stop_viya
             echo -en ${NC}
             ;;
         9)
-            echo "You chose: Start/Unpause a Viya Instance"
+            echo "You chose: Start/Unpause a Viya Instance..."
             echo -en ${GREEN}
             start_viya
             echo -en ${NC}
             ;;
         10)
-            echo "You chose: Monitor a Cluster"
+            echo "You chose: Monitor a Cluster..."
             echo -en ${GREEN}
             monitor_cluster
             echo -en ${NC}

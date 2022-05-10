@@ -5,8 +5,8 @@ ENV VERBOSE "false"
 
 ENV TERM xterm-256color
 
-ADD kubecost_container.sh /app/
-RUN chmod +x /app/kubecost_container.sh
+ADD viya_utils.sh /app/
+RUN chmod +x /app/viya_utils.sh
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
@@ -37,7 +37,7 @@ RUN chmod 700 get_helm.sh
 RUN ./get_helm.sh
 
 # Prettify the prompt
-RUN echo 'export PS1="[\u@kubecost_container] \W # "' >> ~/.bashrc
+RUN echo 'export PS1="[\u@viya_utils] \W # "' >> ~/.bashrc
 
 # Run kubecost, set up some utility functions
-CMD /app/kubecost_container.sh "${VERBOSE}"
+CMD /app/viya_utils.sh "${VERBOSE}"
