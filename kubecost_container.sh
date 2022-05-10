@@ -107,7 +107,7 @@ function select_context() {
     ((SELECTION--))
 
     echo
-    printf "Select an Context from the above list (enter for $PREV_CX): "
+    printf "Select a Context from the above list (enter for $PREV_CX): "
 
     read -r opt
     if [[ $(seq 1 $SELECTION) =~ $opt ]]; then
