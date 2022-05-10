@@ -23,20 +23,35 @@ WORKDIR /app
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl; chmod +x ./kubectl; mv ./kubectl /usr/local/bin/kubectl
 
 # Installing Krew and kubecost krew plugin
-RUN curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew.{tar.gz,yaml}" && \
-    tar zxvf krew.tar.gz && \
-    KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64" && \
-    "$KREW" install --manifest=krew.yaml --archive=krew.tar.gz && \
-    "$KREW" install cost && \
-    "$KREW" install view-utilization && \
-    "$KREW" install view-allocations && \
-    "$KREW" install resource-capacity && \
-    "$KREW" install sick-pods && \
-    "$KREW" install resource-snapshot && \
-    "$KREW" install df-pv && \
-    "$KREW" install node-shell && \
-    "$KREW" install debug-shell && \
-    "$KREW" update
+# RUN curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew.{tar.gz,yaml}" && \
+#     tar zxvf krew.tar.gz && \
+#     KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64" && \
+#     "$KREW" install --manifest=krew.yaml --archive=krew.tar.gz && \
+#     "$KREW" install cost && \
+#     "$KREW" install view-utilization && \
+#     "$KREW" install view-allocations && \
+#     "$KREW" install resource-capacity && \
+#     "$KREW" install sick-pods && \
+#     "$KREW" install resource-snapshot && \
+#     "$KREW" install df-pv && \
+#     "$KREW" install node-shell && \
+#     "$KREW" install debug-shell && \
+#     "$KREW" update
+RUN KREW_VER="$(uname | tr '[:upper:]' '[:lower:]')_amd64" \
+    && curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew{-$KREW_VER.tar.gz,.yaml}" \
+    && tar zxvf krew-$KREW_VER.tar.gz \
+    && KREW=./krew-$KREW_VER \
+    && "$KREW" install --manifest=krew.yaml --archive=krew-$KREW_VER.tar.gz \
+    # && "$KREW" install view-utilization \
+    # && "$KREW" install view-allocations \
+    # && "$KREW" install resource-capacity \
+    # && "$KREW" install sick-pods \
+    # && "$KREW" install resource-snapshot \
+    # && "$KREW" install df-pv \
+    # && "$KREW" install node-shell \
+    # && "$KREW" install debug-shell \
+    && "$KREW" install cost \
+    && "$KREW" update
 
 # Install helm
 RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
