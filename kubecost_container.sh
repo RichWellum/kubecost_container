@@ -88,6 +88,36 @@ function stop_spinner() {
     unset _sp_pid
 }
 
+function select_context() {
+    # Select a context
+    # Save current context
+    PREV_CX=$(kubectl config current-context)
+    echo "Current CX is: $PREV_CX"
+    echo
+
+    # Pick context to run Astrolabe on
+    ENTITIES=$(kubectl config get-contexts --no-headers=false -o name)
+    SELECTION=1
+
+    while read -r line; do
+        echo "$SELECTION) $line"
+        ((SELECTION++))
+    done <<<"$ENTITIES"
+
+    ((SELECTION--))
+
+    echo
+    printf "Select an Context from the above list (enter for $PREV_CX): "
+
+    read -r opt
+    if [[ $(seq 1 $SELECTION) =~ $opt ]]; then
+        CONTEXTS=$(sed -n "${opt}p" <<<"$ENTITIES")
+    fi
+    kubectl config use-context $CONTEXTS &>/dev/null
+    CURR_CX=$(kubectl config current-context)
+    echo -en ${NC}
+}
+
 function enable_kubecost_check() {
     # Enable kubecost on the target cluster
     KUBECOST=$(kubectl get namespaces | grep kubecost)
@@ -283,5 +313,6 @@ export -f menu
 # Test code for GCP issues
 # kubectl version --v=10
 
+select_context
 enable_kubecost_check
 menu
