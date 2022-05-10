@@ -311,7 +311,7 @@ function menu() {
             8 "Stop/Pause a Viya Instance"
             9 "Start/Unpause a Viya Instance"
             10 "Monitor a Cluster (Ctrl-c to quit)"
-            11 "Exit out of container")
+            11 "EXIT")
 
         CHOICE=$(dialog --clear \
             --backtitle "$BACKTITLE" \
