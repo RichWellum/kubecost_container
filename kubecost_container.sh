@@ -88,6 +88,55 @@ function stop_spinner() {
     unset _sp_pid
 }
 
+function stop_viya() {
+    # Stop a viya
+    NS=$(kubectl get namespace --no-headers=true | grep -v 'kube-\|default\|cert\|nfs\|ingress\|kubecost\|monitor\|logging' | awk '{print $1}')
+    SELECTION=1
+
+    while read -r line; do
+        echo "$SELECTION) $line"
+        ((SELECTION++))
+    done <<<"$NS"
+
+    ((SELECTION--))
+
+    echo
+    printf "Select a Viya Namespace from the above list to stop"
+
+    read -r opt
+    if [[ $(seq 1 $SELECTION) =~ $opt ]]; then
+        NAMESPACE=$(sed -n "${opt}p" <<<"$NS")
+    fi
+    kubectl create job sas-stop-all-`date +%s` --from cronjobs/sas-stop-all -n $NAMESPACE &>/dev/null
+}
+
+function start_viya() {
+    # Stop a viya
+    NS=$(kubectl get namespace --no-headers=true | grep -v 'kube-\|default\|cert\|nfs\|ingress\|kubecost\|monitor\|logging' | awk '{print $1}')
+    SELECTION=1
+
+    while read -r line; do
+        echo "$SELECTION) $line"
+        ((SELECTION++))
+    done <<<"$NS"
+
+    ((SELECTION--))
+
+    echo
+    printf "Select a Viya Namespace from the above list to start"
+
+    read -r opt
+    if [[ $(seq 1 $SELECTION) =~ $opt ]]; then
+        NAMESPACE=$(sed -n "${opt}p" <<<"$NS")
+    fi
+    kubectl create job sas-start-all-`date +%s` --from cronjobs/sas-start-all -n $NAMESPACE &>/dev/null
+}
+
+function monitor_cluster() {
+    # Light weight look at cluster status
+    watch -d kubectl get po -A
+}
+
 function select_context() {
     # Select a context
     # Save current context
@@ -253,7 +302,10 @@ function menu() {
             5 "Projected monthly costs per Namespace"
             6 "All of the above"
             7 "Break into bash and run your own 'kubectl cost' commands"
-            8 "Exit out of container")
+            8 "Stop/Pause a Viya Instance"
+            9 "Start/Unpause a Viya Instance"
+            10 "Monitor a Cluster"
+            11 "Exit out of container")
 
         CHOICE=$(dialog --clear \
             --backtitle "$BACKTITLE" \
@@ -303,6 +355,24 @@ function menu() {
             bash
             ;;
         8)
+            echo "You chose: Stop/Pause a Viya Instance"
+            echo -en ${GREEN}
+            stop_viya
+            echo -en ${NC}
+            ;;
+        9)
+            echo "You chose: Start/Unpause a Viya Instance"
+            echo -en ${GREEN}
+            start_viya
+            echo -en ${NC}
+            ;;
+        10)
+            echo "You chose: Monitor a Cluster"
+            echo -en ${GREEN}
+            monitor_cluster
+            echo -en ${NC}
+            ;;
+        11)
             exit 1
             ;;
         esac

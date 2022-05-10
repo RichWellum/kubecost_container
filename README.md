@@ -40,3 +40,22 @@ sudo docker rmi --force rwellum/kubecost_container:latest
 sudo docker build -t rwellum/kubecost_container:latest . --no-cache
 sudo docker push rwellum/kubecost_container:latest
 ```
+
+## Todo
+
+- Add pause and unpause
+
+Stop a SAS Viya DeploymentTo stop your SAS Viya deployment, create a new job
+that runs immediately from the sas-stop-all CronJob:
+
+```bash
+kubectl create job sas-stop-all-`date +%s` --from cronjobs/sas-stop-all -n
+name-of-namespace
+```
+
+Start a SAS Viya DeploymentTo start your SAS Viya deployment, create a new job that
+runs immediately from the sas-start-all CronJob:
+
+```bash
+kubectl create job sas-start-all-`date +%s` --from cronjobs/sas-start-all -n name-of-namespace
+```
