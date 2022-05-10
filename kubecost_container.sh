@@ -294,7 +294,7 @@ function get_actual_month_controller() {
 function menu() {
     HEIGHT=20
     WIDTH=65
-    CHOICE_HEIGHT=8
+    CHOICE_HEIGHT=12
     BACKTITLE="For Kubecost UI run: 'kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090'. Then navigate to: 'http://127.0.0.1:9090'"
     TITLE="Kubecost Information"
     MENU="Choose one of the following options:"
@@ -310,7 +310,7 @@ function menu() {
             7 "Break into bash and run your own 'kubectl cost' commands"
             8 "Stop/Pause a Viya Instance"
             9 "Start/Unpause a Viya Instance"
-            10 "Monitor a Cluster"
+            10 "Monitor a Cluster (Ctrl-c to quit)"
             11 "Exit out of container")
 
         CHOICE=$(dialog --clear \
