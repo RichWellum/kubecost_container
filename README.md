@@ -50,6 +50,12 @@ Warning removes everything...
     sudo docker system prune -a
 ```
 
+## To manually remove kubecost
+
+```bash
+helm uninstall kubecost -n kubecost
+```
+
 ## Todo
 
 - Add pause and unpause

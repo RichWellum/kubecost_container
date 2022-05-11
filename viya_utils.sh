@@ -205,12 +205,8 @@ function enable_kubecost() {
     helm install kubecost kubecost/cost-analyzer --namespace kubecost --set kubecostToken="cmljaHdlbGx1bUBnbWFpbC5jb20=xm343yadf98" &>/dev/null
     sleep 3
     POD=$(kubectl get pods --all-namespaces | grep kubecost-cost-analyzer | awk '{print $2}')
-    while [ $(kubectl get pod $POD -n kubecost | grep 3/3 | wc -l | xargs) != "1" ]; do
-        sleep 15
-        echo -en ${RED}
-        echo "Waiting for kubecost-cost-analyzer to be ready."
-        echo -en ${NC}
-    done
+    echo "Waiting for kubecost to be ready..."
+    kubectl wait --for=condition=Ready pod/$POD -n kubecost
     stop_spinner $?
     echo -en ${GREEN}
     echo "Kubecost enabled. Use: 'helm uninstall kubecost -n kubecost' to uninstall."
@@ -311,13 +307,12 @@ function menu() {
             3 "Actual costs per Pod (this month)"
             4 "Actual costs per Controller (this month)"
             5 "Projected monthly costs per Namespace (7d window)"
-            6 "All of the above"
-            7 "Break into bash and run your own 'kubectl cost' commands"
-            8 "Stop/Pause a Viya Instance"
-            9 "Start/Unpause a Viya Instance"
-            10 "Monitor a Cluster (Ctrl-c to quit)"
-            11 "Monitor a Cluster - not running (Ctrl-c to quit)"
-            12 "EXIT")
+            6 "Break into bash and run your own 'kubectl cost' commands"
+            7 "Stop/Pause a Viya Instance"
+            8 "Start/Unpause a Viya Instance"
+            9 "Monitor a Cluster (Ctrl-c to quit)"
+            10 "Monitor a Cluster - not running (Ctrl-c to quit)"
+            11 "EXIT")
 
         CHOICE=$(dialog --clear \
             --backtitle "$BACKTITLE" \
@@ -350,15 +345,7 @@ function menu() {
             get_projected_month_7d_window_namespace
             ;;
         6)
-            echo "You chose: All of the above..."
-            get_actual_month_namespace
-            get_actual_month_deployment
-            get_actual_month_pod
-            get_actual_month_controller
-            get_projected_month_7d_window_namespace
-            ;;
-        7)
-            echo "You chose: Break into bash and run your own commands..."
+            echo "You chose: Break into bash and run your own 'kubectl cost' commands..."
             echo -en ${GREEN}
             kubectl cost -h
             echo
@@ -366,31 +353,31 @@ function menu() {
             source ~/.bashrc
             bash
             ;;
-        8)
+        7)
             echo "You chose: Stop/Pause a Viya Instance..."
             echo -en ${GREEN}
             stop_viya
             echo -en ${NC}
             ;;
-        9)
+        8)
             echo "You chose: Start/Unpause a Viya Instance..."
             echo -en ${GREEN}
             start_viya
             echo -en ${NC}
             ;;
-        10)
+        9)
             echo "You chose: Monitor a Cluster..."
             echo -en ${GREEN}
             monitor_cluster
             echo -en ${NC}
             ;;
-        11)
+        10)
             echo "You chose: Monitor a Cluster - not running (Ctrl-c to quit)..."
             echo -en ${GREEN}
             monitor_cluster_not_running
             echo -en ${NC}
             ;;
-        12)
+        11)
             exit 1
             ;;
         esac
