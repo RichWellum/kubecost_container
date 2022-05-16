@@ -23,6 +23,7 @@ Please see much more here: <https://www.kubecost.com/> and here
 ## Launch and run on Azure
 
 ```bash
+az login
 sudo docker run -it --rm -v ~/.kube/:/root/.kube rwellum/viya_utils:latest
 ```
 
@@ -32,6 +33,10 @@ sudo docker run -it --rm -v ~/.kube/:/root/.kube rwellum/viya_utils:latest
 gcloud auth application-default login
 docker run -it --rm -v ~/.kube/:/root/.kube -v ~/.config/gcloud:/root/.config/gcloud rwellum/viya_utils:latest
 ```
+
+## Launch and run on AWS
+
+TBD
 
 ## For the package maintainer
 
@@ -47,7 +52,7 @@ sudo bash -c "docker system prune -f \
 Warning removes everything...
 
 ```bash
-    sudo docker system prune -a
+sudo docker system prune -a
 ```
 
 ## To manually remove kubecost
