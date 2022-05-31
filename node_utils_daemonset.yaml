@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: disk-checker
+  namespace: astrolabe
+  labels:
+    app: disk-checker
+spec:
+  selector:
+    matchLabels:
+      app: disk-checker
+  template:
+    metadata:
+      labels:
+        app: disk-checker
+    spec:
+      hostPID: true
+      hostIPC: true
+      hostNetwork: true
+      containers:
+        - resources:
+            requests:
+              cpu: "0.15"
+              memory: 200Mi
+          securityContext:
+            privileged: true
+          image: ubuntu:latest
+          imagePullPolicy: IfNotPresent
+          name: disk-checked
+          command: ["/bin/sh", "-c"]
+          args:
+            - HOSTNAME=$(cat /proc/sys/kernel/hostname);
+              DISK_SIZE=$(df -l -BK --total --exclude-type=tmpfs --exclude-type=overlay | awk '/^total/ {print $2}');
+              DISK_USED=$(df -l -BK --total --exclude-type=tmpfs --exclude-type=overlay | awk '/^total/ {print $3}');
+              MEM_SIZE=$(free --total -b |  awk '/^Total/ {print $2}');
+              MEM_USED=$(free --total -b |  awk '/^Total/ {print $3}');
+              CPU_NUM=$(lscpu | egrep 'CPU\(s):' | grep -v NUMA | awk '{print $2}');
+              CPU_THREADS=$(lscpu | egrep 'Thread' | awk '{print $4}');
+              CPU_SOCKETS=$(lscpu | egrep 'Socket' |  awk '{print $2}');
+              echo "$HOSTNAME";
+              echo " Disk_Size=$DISK_SIZE";
+              echo " Disk_Used=$DISK_USED";
+              echo " Mem_Size=$MEM_SIZE";
+              echo " Mem_Used=$MEM_USED";
+              echo " CPU_Num=$CPU_NUM";
+              echo " CPU_Threads=$CPU_THREADS";
+              echo " CPU_Sockets=$CPU_SOCKETS";
+              echo;
+              sleep 3000;
+          volumeMounts:
+            - name: host
+              mountPath: "/host"
+      volumes:
+        - name: host
+          hostPath:
+            path: "/"
+      tolerations:
+        - operator: Exists
+          effect: NoExecute
+        - operator: Exists
+          effect: NoSchedule
