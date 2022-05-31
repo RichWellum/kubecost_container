@@ -649,9 +649,9 @@ function run_node_utils_daemonset() {
     sleep 1
     echo
     echo -en ${GREEN}
-    cat /home/astrolabe.pernode_table_sorted | boxes -d columns -p a2v1
+    cat /home/astrolabe.pernode_table_sorted | boxes -d columns -p a2v1 > /home/astrolabe.pernode_table_sorted_pretty
+    less /home/astrolabe.pernode_table_sorted_pretty
     echo -en ${NC}
-    sleep 2000
 }
 
 select_context
