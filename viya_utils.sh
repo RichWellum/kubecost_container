@@ -542,7 +542,7 @@ function run_node_utils_daemonset() {
     stop_spinner $?
     start_spinner "Collecting and processing data from Daemonset pods (this takes some time)...."
     # Send logs to a file for further processing
-    kubectl logs -l app=disk-checker -n astrolabe --tail=-1 >>/home/astrolabe.pernode
+    kubectl logs -l app=disk-checker -n astrolabe --tail=-1 >/home/astrolabe.pernode
 
     # Display in table form like all other commands
     # Kubectl commands can be run from here
